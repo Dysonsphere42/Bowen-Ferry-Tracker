@@ -6,8 +6,24 @@ from datetime import datetime, timezone
 destination = 0.06003
 zero = -123.271674
 
+# cutoffs
+bowen_docking_cutoff = 49.379349452706606
+horseshoebay_docking_cutoff_x = 49.37679093807069
+horseshoebay_docking_cutoff_y = -123.27215086024584
+
+to_bowen_heading_cutoff = 180
 
 print('imports completed')
+
+
+def print_status(lat, lon, heading, speed):
+    if speed > 0:
+        if lat > bowen_docking_cutoff:
+            return 'Docked at bowen'
+        else:
+            return 'Docked at Horseshoe Bay'
+    elif lat > bowen_docking_cutoff and heading > to_bowen_heading_cutoff:
+        return 'Docking at Bowen'
 
 
 def round5(x, base=5):
@@ -39,12 +55,6 @@ async def connect_ais_stream():
                 sog = ais_message['Sog']
 
                 progress = abs(round5((relative_lon / destination) * 100))
-
-                if heading > 180:
-                    print(progress, '% to bowen')
-                elif heading < 180:
-                    print(100 - progress, '% to horseshoe bay')
-                print(sog)
 
 if __name__ == "__main__":
     asyncio.run(asyncio.run(connect_ais_stream()))
